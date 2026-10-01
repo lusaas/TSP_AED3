@@ -6,13 +6,14 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <iomanip>
 
 using namespace std;
 
 struct Node {
     vector<pair<int, int>> path;
     vector<bool> visited;
-    int bound;
+    double bound;
     int current_cost;
     int current_city;
     int level;
@@ -59,11 +60,11 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
     root.current_cost = 0;
     root.level = 0;
 
-    int initial_bound = 0;
+    double initial_bound = 0.0;
     for (int i = 0; i < N; i++) {
         initial_bound += (firstMin(adj, i) + secondMin(adj, i));
     }
-    root.bound = ceil((double)initial_bound / 2);
+    root.bound = initial_bound / 2.0;
 
     pq.push(root);
 
@@ -75,7 +76,7 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
 
     while (!pq.empty()) {
         auto current_time = chrono::steady_clock::now();
-        if (chrono::duration_cast<chrono::seconds>(current_time - start_time).count() >= 15) {
+        if (chrono::duration<double>(current_time - start_time).count() >= 60.0) {
             timeout = true;
             break;
         }
@@ -111,11 +112,11 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
                 next.current_cost = curr.current_cost + adj[curr.current_city][i];
                 next.level = curr.level + 1;
 
-                int temp = curr.bound;
+                double temp = curr.bound;
                 if (curr.level == 0) {
-                    temp -= ((firstMin(adj, curr.current_city) + firstMin(adj, i)) / 2);
+                    temp -= ((firstMin(adj, curr.current_city) + firstMin(adj, i)) / 2.0);
                 } else {
-                    temp -= ((secondMin(adj, curr.current_city) + firstMin(adj, i)) / 2);
+                    temp -= ((secondMin(adj, curr.current_city) + firstMin(adj, i)) / 2.0);
                 }
                 next.bound = temp + adj[curr.current_city][i];
 
@@ -126,12 +127,17 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
         }
     }
 
+    auto end_time = chrono::steady_clock::now();
+    double elapsed_seconds = chrono::duration<double>(end_time - start_time).count();
+
     cout << "--- Resultado para " << filename << " (" << N << " cidades) ---\n";
     if (timeout) {
-        cout << "Status: Limite de tempo 15s) excedido!\n";
+        cout << "Status: Limite de tempo de 60 s excedido.\n";
     } else {
         cout << "Status: Executado com sucesso.\n";
     }
+    cout << fixed << setprecision(6)
+         << "Tempo de execucao: " << elapsed_seconds << " s\n";
 
     if (final_res == INT_MAX) {
         cout << "Nenhuma rota completa foi encontrada no tempo disponivel.\n\n";
@@ -170,14 +176,19 @@ vector<vector<int>> readMatrix(const string& filename) {
     return adj;
 }
 
-int main() {
-    vector<string> files = {
-        "tsp1_253.txt",
-        "tsp2_1248.txt",
-        "tsp3_1194.txt",
-        "tsp4_7013.txt",
-        "tsp5_27603.txt"
-    };
+int main(int argc, char* argv[]) {
+    vector<string> files;
+    if (argc > 1) {
+        for (int i = 1; i < argc; ++i) files.push_back(argv[i]);
+    } else {
+        files = {
+            "tsp1_253.txt",
+            "tsp2_1248.txt",
+            "tsp3_1194.txt",
+            "tsp4_7013.txt",
+            "tsp5_27603.txt"
+        };
+    }
 
     for (const string& file : files) {
         cout << "Processando " << file << "...\n";

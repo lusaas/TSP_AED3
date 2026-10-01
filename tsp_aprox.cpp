@@ -4,12 +4,16 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <chrono>
+#include <iomanip>
 
 using namespace std;
 
 void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filename) {
     int num_cities = adj.size();
     if (num_cities == 0) return;
+
+    auto start_time = chrono::steady_clock::now();
 
     vector<bool> visited(num_cities, false);
     vector<int> path;
@@ -47,8 +51,13 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
     int return_cost = adj[current_city][0];
     total_cost += return_cost;
     path.push_back(0);
+
+    auto end_time = chrono::steady_clock::now();
+    double elapsed_seconds = chrono::duration<double>(end_time - start_time).count();
     
     cout << "Custo total aproximado: " << total_cost << "\n";
+    cout << fixed << setprecision(6)
+         << "Tempo de execucao: " << elapsed_seconds << " s\n";
     cout << "Rota seguida: ";
     for (size_t i = 0; i < path.size(); i++) {
         cout << path[i];
@@ -82,14 +91,19 @@ vector<vector<int>> readMatrix(const string& filename) {
     return adj;
 }
 
-int main() {
-    vector<string> files = {
-        "tsp1_253.txt",
-        "tsp2_1248.txt",
-        "tsp3_1194.txt",
-        "tsp4_7013.txt",
-        "tsp5_27603.txt"
-    };
+int main(int argc, char* argv[]) {
+    vector<string> files;
+    if (argc > 1) {
+        for (int i = 1; i < argc; ++i) files.push_back(argv[i]);
+    } else {
+        files = {
+            "tsp1_253.txt",
+            "tsp2_1248.txt",
+            "tsp3_1194.txt",
+            "tsp4_7013.txt",
+            "tsp5_27603.txt"
+        };
+    }
 
     for (const string& file : files) {
         vector<vector<int>> adj = readMatrix(file);
