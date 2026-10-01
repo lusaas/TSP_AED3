@@ -69,7 +69,7 @@ Esta é a forma recomendada de executar os experimentos completos.
 ### 1. Acesse o diretório do projeto
 
 ```bash
-cd /home/murilo/Documentos/TSP_AED3
+cd /home/user/<diretorio-do-projeto>
 ```
 
 ### 2. Garanta a permissão de execução do script
@@ -183,4 +183,3 @@ Um gap de `0%` indica que o custo obtido coincide com o ótimo de referência. Q
 - as instâncias maiores podem não produzir uma solução exata dentro de 60 segundos;
 - nesses casos, o relatório apresenta o resultado aproximativo e seu gap em relação ao valor ótimo fornecido;
 - os tempos podem variar conforme o processador, o sistema operacional, a carga da máquina e as opções de compilação;
-- atualmente, o programa exato retorna custo 254 para `tsp1_253.txt`, embora o nome da instância indique ótimo 253. O relatório registra o valor efetivamente produzido pelo programa.
