@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// Função que implementa a heurística do Vizinho Mais Próximo
 void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filename) {
     int num_cities = adj.size();
     if (num_cities == 0) return;
@@ -16,9 +15,8 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
     vector<int> path;
     
     int total_cost = 0;
-    int current_city = 0; // Começa na cidade 0
+    int current_city = 0;
     
-    // Marca a primeira cidade como visitada e adiciona ao caminho
     visited[current_city] = true;
     path.push_back(current_city);
 
@@ -26,12 +24,10 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
     cout << "Instancia: " << filename << " (" << num_cities << " cidades)\n";
     cout << "-----------------------------------------------------\n";
 
-    // Visita as próximas num_cities - 1 cidades
     for (int step = 0; step < num_cities - 1; step++) {
         int nearest_city = -1;
         int min_distance = INT_MAX;
 
-        // Procura a cidade não visitada mais próxima da cidade atual
         for (int next_city = 0; next_city < num_cities; next_city++) {
             if (!visited[next_city] && adj[current_city][next_city] < min_distance) {
                 min_distance = adj[current_city][next_city];
@@ -39,10 +35,8 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
             }
         }
 
-        // Se por algum motivo não houver cidade alcançável
         if (nearest_city == -1) break;
 
-        // Move para a cidade encontrada
         visited[nearest_city] = true;
         path.push_back(nearest_city);
         total_cost += min_distance;
@@ -50,12 +44,10 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
         current_city = nearest_city;
     }
 
-    // Fecha o ciclo: volta da última cidade para a cidade inicial (0)
     int return_cost = adj[current_city][0];
     total_cost += return_cost;
     path.push_back(0);
     
-    // Exibe o resultado final
     cout << "Custo total aproximado: " << total_cost << "\n";
     cout << "Rota seguida: ";
     for (size_t i = 0; i < path.size(); i++) {
@@ -65,7 +57,6 @@ void solveTSPNearestNeighbor(const vector<vector<int>>& adj, const string& filen
     cout << "\n\n";
 }
 
-// Função para ler a matriz de adjacência a partir de um ficheiro de texto
 vector<vector<int>> readMatrix(const string& filename) {
     ifstream file(filename);
     vector<vector<int>> adj;
@@ -92,7 +83,6 @@ vector<vector<int>> readMatrix(const string& filename) {
 }
 
 int main() {
-    // Lista das 5 instâncias a processar
     vector<string> files = {
         "tsp1_253.txt",
         "tsp2_1248.txt",

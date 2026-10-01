@@ -9,22 +9,19 @@
 
 using namespace std;
 
-// Estrutura para representar um nó na árvore de busca
 struct Node {
-    vector<pair<int, int>> path; // Rota percorrida (origem, destino)
-    vector<bool> visited;        // Cidades visitadas
-    int bound;                   // Limite inferior (Lower Bound)
-    int current_cost;            // Custo acumulado até o momento
-    int current_city;            // Cidade atual
-    int level;                   // Nível na árvore (quantas cidades já visitou)
+    vector<pair<int, int>> path;
+    vector<bool> visited;
+    int bound;
+    int current_cost;
+    int current_city;
+    int level;
 
-    // Operador para a fila de prioridade (menor bound tem maior prioridade)
     bool operator>(const Node& other) const {
         return bound > other.bound;
     }
 };
 
-// Função para encontrar a aresta mais barata que sai da cidade i
 int firstMin(const vector<vector<int>>& adj, int i) {
     int min_val = INT_MAX;
     int N = adj.size();
@@ -34,7 +31,6 @@ int firstMin(const vector<vector<int>>& adj, int i) {
     return min_val;
 }
 
-// Função para encontrar a segunda aresta mais barata que sai da cidade i
 int secondMin(const vector<vector<int>>& adj, int i) {
     int first = INT_MAX, second = INT_MAX;
     int N = adj.size();
@@ -50,7 +46,6 @@ int secondMin(const vector<vector<int>>& adj, int i) {
     return second;
 }
 
-// Função principal do Branch and Bound para o TSP
 void solveTSP(const vector<vector<int>>& adj, const string& filename) {
     int N = adj.size();
     if (N == 0) return;
@@ -58,14 +53,12 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
     priority_queue<Node, vector<Node>, greater<Node>> pq;
     Node root;
 
-    // Inicializa o nó raiz (começando da cidade 0)
     root.visited.assign(N, false);
     root.visited[0] = true;
     root.current_city = 0;
     root.current_cost = 0;
     root.level = 0;
 
-    // Calcula o limite inferior (bound) inicial para a raiz
     int initial_bound = 0;
     for (int i = 0; i < N; i++) {
         initial_bound += (firstMin(adj, i) + secondMin(adj, i));
@@ -77,12 +70,10 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
     int final_res = INT_MAX;
     vector<pair<int, int>> final_path;
     
-    // Configura controle de tempo
     auto start_time = chrono::steady_clock::now();
     bool timeout = false;
 
     while (!pq.empty()) {
-        // Checagem de limite de tempo de 15 segundos
         auto current_time = chrono::steady_clock::now();
         if (chrono::duration_cast<chrono::seconds>(current_time - start_time).count() >= 15) {
             timeout = true;
@@ -92,12 +83,10 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
         Node curr = pq.top();
         pq.pop();
 
-        // Se o limite inferior do nó atual for maior ou igual ao melhor resultado encontrado, podamos
         if (curr.bound >= final_res) {
             continue; 
         }
 
-        // Se visitamos todas as cidades, precisamos fechar o ciclo voltando para a cidade 0
         if (curr.level == N - 1) {
             int last_to_first_cost = adj[curr.current_city][0];
             if (last_to_first_cost != 0) {
@@ -111,7 +100,6 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
             continue;
         }
 
-        // Explora os vizinhos (próximas cidades possíveis)
         for (int i = 0; i < N; i++) {
             if (adj[curr.current_city][i] != 0 && !curr.visited[i]) {
                 Node next;
@@ -123,7 +111,6 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
                 next.current_cost = curr.current_cost + adj[curr.current_city][i];
                 next.level = curr.level + 1;
 
-                // Calcula o novo bound para o nó filho
                 int temp = curr.bound;
                 if (curr.level == 0) {
                     temp -= ((firstMin(adj, curr.current_city) + firstMin(adj, i)) / 2);
@@ -132,7 +119,6 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
                 }
                 next.bound = temp + adj[curr.current_city][i];
 
-                // Só adiciona à fila se o bound estimado for menor que a melhor solução atual
                 if (next.bound < final_res) {
                     pq.push(next);
                 }
@@ -140,7 +126,6 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
         }
     }
 
-    // Exibe o resultado final
     cout << "--- Resultado para " << filename << " (" << N << " cidades) ---\n";
     if (timeout) {
         cout << "Status: Limite de tempo 15s) excedido!\n";
@@ -160,7 +145,6 @@ void solveTSP(const vector<vector<int>>& adj, const string& filename) {
     }
 }
 
-// Função para ler matriz de adjacência de um arquivo
 vector<vector<int>> readMatrix(const string& filename) {
     ifstream file(filename);
     vector<vector<int>> adj;
@@ -187,7 +171,6 @@ vector<vector<int>> readMatrix(const string& filename) {
 }
 
 int main() {
-    // Lista dos 5 arquivos fornecidos para processamento
     vector<string> files = {
         "tsp1_253.txt",
         "tsp2_1248.txt",
